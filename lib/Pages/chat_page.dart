@@ -1,7 +1,6 @@
-import 'package:chat_app/Pages/login_page.dart';
-import 'package:chat_app/Pages/register_page.dart';
+import 'package:chat_app/Pages/cubit/login_cubit/login_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -9,7 +8,7 @@ import '../model/massage_model.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
-
+  static String id = 'ChatPage';
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
@@ -17,13 +16,15 @@ class ChatPage extends StatefulWidget {
 CollectionReference massages =
     FirebaseFirestore.instance.collection('massages');
 final controllero = ScrollController();
-String? name;
+
 bool chack = false;
 bool chack2 = true;
 
 class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
+    String name = ModalRoute.of(context)!.settings.arguments as String;
+    String? emailAddress = BlocProvider.of<LoginCubit>(context).emailAddress;
     return StreamBuilder<QuerySnapshot>(
       stream: massages.orderBy('created', descending: true).snapshots(),
       builder: (context, snapshot) {
@@ -33,10 +34,9 @@ class _ChatPageState extends State<ChatPage> {
             massagesRead.add(Massage.fromjson(snapshot.data!.docs[i]));
           }
           return Scaffold(
-            backgroundColor: Color.fromARGB(253, 255, 255, 255),
-            extendBodyBehindAppBar: false,
+            extendBodyBehindAppBar: true,
             appBar: AppBar(
-              backgroundColor: Color.fromARGB(40, 255, 255, 255),
+              backgroundColor: const Color.fromARGB(78, 250, 250, 250),
               centerTitle: false,
               titleSpacing: 0.0,
               title: Row(
@@ -46,16 +46,27 @@ class _ChatPageState extends State<ChatPage> {
                     children: [
                       GestureDetector(
                         onTap: () {},
-                        child: const CircleAvatar(
+                        child: CircleAvatar(
+                          backgroundColor:
+                              const Color.fromARGB(37, 249, 248, 248),
                           radius: 20,
-                          child: Icon(Icons.person),
+                          child: Center(
+                            child: Text(
+                              name.characters.first,
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 15),
                       Text(
-                        name ?? 'welcome',
+                        name,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ],
                   ),
@@ -64,39 +75,33 @@ class _ChatPageState extends State<ChatPage> {
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(
-                          Icons.videocam,
-                          color: Colors.black,
+                          Icons.phone,
+                          color: Colors.white,
                           size: 24,
                         ),
                       ),
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(
-                          Icons.phone,
-                          color: Colors.black,
+                          Icons.videocam,
+                          color: Colors.white,
                           size: 24,
                         ),
                       ),
-                      PopupMenuButton(itemBuilder: (context) {
-                        return List.empty();
-                      }),
+                      PopupMenuButton(
+                          color: Colors.white,
+                          itemBuilder: (context) {
+                            return List.empty();
+                          }),
                     ],
                   )
                 ],
               ),
             ),
-            body: GlassContainer.clearGlass(
-              borderColor: const Color.fromARGB(132, 0, 0, 0),
-              height: double.infinity,
-              width: double.infinity,
-              color: const Color.fromARGB(197, 255, 255, 255),
-              gradient: const LinearGradient(colors: [
-                Colors.white,
-                Colors.lightBlue,
-                Colors.purple,
-                Colors.blue,
-              ], begin: Alignment.topLeft, end: Alignment.bottomCenter),
-              blur: 50,
+            body: Container(
+              decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('images/Chat.jpg'), fit: BoxFit.cover)),
               child: Column(
                 children: [
                   Expanded(
@@ -141,7 +146,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   MessageBar(
                     sendButtonColor: Colors.grey,
-                    messageBarColor: const Color.fromARGB(120, 2, 2, 2),
+                    messageBarColor: const Color.fromARGB(31, 255, 255, 255),
                     onSend: (value) {
                       massages.add({
                         'masage': value,
@@ -149,23 +154,15 @@ class _ChatPageState extends State<ChatPage> {
                         'falsesend': false,
                         'created': DateTime.now(),
                         'email': emailAddress,
-                        'nameSender': username ?? 'User',
+                        'nameSender': 'name',
                       });
-                      print(name);
+
                       controllero.animateTo(
                           controllero.position.minScrollExtent,
                           duration: const Duration(seconds: 1),
                           curve: Curves.easeIn);
                     },
                     actions: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.add,
-                          color: Colors.grey,
-                          size: 24,
-                        ),
-                      ),
                       IconButton(
                         onPressed: () {},
                         icon: const Icon(
@@ -181,20 +178,12 @@ class _ChatPageState extends State<ChatPage> {
             ),
           );
         } else {
-          return GlassContainer.clearGlass(
-            height: double.infinity,
-            width: double.infinity,
-            borderColor: Colors.transparent,
-            gradient: LinearGradient(
-                colors: [Colors.blue, Colors.purple],
-                begin: Alignment.topCenter),
-            child: const Scaffold(
-              backgroundColor: Color.fromARGB(131, 255, 255, 255),
-              body: ModalProgressHUD(
-                inAsyncCall: true,
-                blur: 20,
-                child: Text('loading ....'),
-              ),
+          return const Scaffold(
+            backgroundColor: Colors.transparent,
+            body: ModalProgressHUD(
+              inAsyncCall: true,
+              blur: 20,
+              child: Text('loading ....'),
             ),
           );
         }

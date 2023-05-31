@@ -23,14 +23,13 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassContainer.clearGlass(
-      width: width!, borderColor: Colors.transparent,
-      height: height!, blur: 20,
+      width: width!,
+      borderColor: Colors.transparent,
+      height: height!,
+      blur: 20,
       borderRadius: BorderRadius.circular(borderRadius!),
-      alignment: Alignment.center, shadowColor: Colors.blue,
-      // gradient: LinearGradient(colors: [Colors.orange, Colors.red]),
-      // decoration: BoxDecoration(
-      //     borderRadius: BorderRadius.circular(borderRadius!), color: backColor),
-      // alignment: Alignment.center,
+      alignment: Alignment.center,
+      shadowColor: Colors.blue,
       child: Text(
         textAlign: TextAlign.center,
         textButtom!,

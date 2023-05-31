@@ -1,7 +1,7 @@
 class Massage {
   final String massages;
-  final String email;
-  final String usernam;
+  String email;
+  String usernam;
   final bool isSender;
   Massage(this.massages, this.email, this.usernam, this.isSender);
 
